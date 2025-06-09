@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Españolix Engine 1.0</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+    }
+    #output {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      background: white;
+      min-height: 300px;
+      position: relative;
+      overflow: hidden;
+    }
+    button, p, img {
+      position: absolute;
+    }
+    img {
+      max-width: 150px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Españolix Engine 1.0</h1>
+<p> <strong></strong>.</p>
+
+<textarea id="area">
+// Ejemplo:
+interfaz ig
+
+crear boton "Tócame"
+crear texto "Texto original"
+crear imagen "https://placekitten.com/200/200"
+
+posicionar boton en (50, 100)
+posicionar texto en (50, 150)
+
+cuando clicado en boton:
+    cambiar texto a "¡Clic detectado!"
+    cambiar imagen a "https://placebear.com/200/200"
+    cambiar tamaño de texto a grande
+</textarea>
+
+<br><br>
+<button onclick="ejecutar()">Ejecutar</button>
+
+<div id="output"></div>
+
+<script>
+function ejecutar() {
+  const codigo = document.getElementById("area").value;
+  const lineas = codigo.split("\n");
+  const contenedor = document.getElementById("output");
+  contenedor.innerHTML = "";
+  let textoID = "";
+  let botonID = "";
+  let imagenID = "";
+
+  lineas.forEach((linea, index) => {
+    linea = linea.trim();
+
+    if (linea.startsWith("crear boton")) {
+      const texto = linea.match(/"(.+?)"/)?.[1];
+      botonID = "btn" + index;
+      const boton = document.createElement("button");
+      boton.innerText = texto;
+      boton.id = botonID;
+      contenedor.appendChild(boton);
+
+    } else if (linea.startsWith("crear texto")) {
+      const texto = linea.match(/"(.+?)"/)?.[1];
+      textoID = "txt" + index;
+      const p = document.createElement("p");
+      p.innerText = texto;
+      p.id = textoID;
+      contenedor.appendChild(p);
+
+    } else if (linea.startsWith("crear imagen")) {
+      const src = linea.match(/"(.+?)"/)?.[1];
+      imagenID = "img" + index;
+      const img = document.createElement("img");
+      img.src = src;
+      img.id = imagenID;
+      contenedor.appendChild(img);
+
+    } else if (linea.startsWith("posicionar boton en")) {
+      const coords = linea.match(/(\d+),\s*(\d+)/);
+      if (coords) {
+        const el = document.getElementById(botonID);
+        el.style.left = coords[1] + "px";
+        el.style.top = coords[2] + "px";
+      }
+
+    } else if (linea.startsWith("posicionar texto en")) {
+      const coords = linea.match(/(\d+),\s*(\d+)/);
+      if (coords) {
+        const el = document.getElementById(textoID);
+        el.style.left = coords[1] + "px";
+        el.style.top = coords[2] + "px";
+      }
+
+    } else if (linea === "ocultar boton") {
+      document.getElementById(botonID).style.display = "none";
+
+    } else if (linea === "mostrar boton") {
+      document.getElementById(botonID).style.display = "inline-block";
+
+    } else if (linea.includes("cambiar tamaño de texto a")) {
+      const tamaño = linea.split("a")[1].trim();
+      let fontSize = "16px";
+      if (tamaño === "grande") fontSize = "28px";
+      else if (tamaño === "mediano") fontSize = "20px";
+      else if (tamaño === "pequeño") fontSize = "12px";
+      document.getElementById(textoID).style.fontSize = fontSize;
+
+    } else if (linea.includes("cambiar imagen a")) {
+      const nueva = linea.match(/"(.+?)"/)?.[1];
+      document.getElementById(imagenID).src = nueva;
+
+    } else if (linea.startsWith("cuando clicado en boton:")) {
+      const accion = lineas[index + 1]?.trim();
+
+      setTimeout(() => {
+        document.getElementById(botonID).onclick = () => {
+          if (accion.startsWith("cambiar texto a")) {
+            const nuevoTexto = accion.match(/"(.+?)"/)?.[1];
+            document.getElementById(textoID).innerText = nuevoTexto;
+          }
+          if (accion.startsWith("cambiar imagen a")) {
+            const nueva = accion.match(/"(.+?)"/)?.[1];
+            document.getElementById(imagenID).src = nueva;
+          }
+          if (accion.startsWith("cambiar tamaño de texto a")) {
+            const tamaño = accion.split("a")[1].trim();
+            let fontSize = "16px";
+            if (tamaño === "grande") fontSize = "28px";
+            else if (tamaño === "mediano") fontSize = "20px";
+            else if (tamaño === "pequeño") fontSize = "12px";
+            document.getElementById(textoID).style.fontSize = fontSize;
+          }
+        };
+      }, 100);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
